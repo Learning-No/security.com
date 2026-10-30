@@ -36,6 +36,8 @@
     .empty{padding:28px;text-align:center;color:var(--muted);border:1px dashed #41484c;font-size:12px}
     footer{border-top:1px solid var(--line);padding:16px 0;margin-top:10px;color:#858d92;font-size:10px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
     .toast{position:fixed;bottom:18px;left:50%;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:#30383a;border:1px solid #687277;padding:10px 15px;color:#fff;box-shadow:var(--shadow);z-index:10;transition:.2s}.toast.show{opacity:1;transform:translate(-50%,0)}
+
+    .auth-backdrop{position:fixed;inset:0;background:#050607d9;display:none;place-items:center;padding:16px;z-index:30}.auth-backdrop.open{display:grid}.auth-card{width:min(440px,100%);background:#202427;border:1px solid #555d62;box-shadow:0 24px 80px #000c;padding:20px}.auth-card h2{font: bold 23px Georgia,serif;margin:0 0 5px}.auth-card p{color:#aeb5b8;font-size:12px;margin:0 0 15px}.auth-tabs{display:flex;gap:6px;margin:12px 0}.auth-tabs button{flex:1}.auth-field{display:grid;gap:5px;margin:10px 0;color:#c7ccce;font-size:11px;text-transform:uppercase;letter-spacing:.6px}.auth-field input{width:100%;padding:10px;background:#111517;border:1px solid #424b50;color:#fff;border-radius:2px}.auth-error{min-height:18px;color:#e18a80;font-size:12px}.auth-actions{display:flex;justify-content:space-between;gap:8px;margin-top:14px}.auth-status{font-size:11px;color:#9aa1a7;margin-top:8px}
     @media(max-width:1050px){.layout{grid-template-columns:210px minmax(0,1fr)}.right-col{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:14px}.right-col .panel{margin:0}}
     @media(max-width:700px){.shell{padding:0 10px 20px}header{align-items:flex-start;flex-wrap:wrap}.top-actions{width:100%;justify-content:space-between}.layout{grid-template-columns:1fr}.left-col,.right-col{display:grid;grid-template-columns:1fr 1fr;gap:10px}.left-col .panel,.right-col .panel{margin:0}.main-col{grid-row:1}.city-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.nav{overflow-x:auto;flex-wrap:nowrap}.nav button{white-space:nowrap;padding:9px 11px}.welcome h2{font-size:23px}}
     @media(max-width:440px){.left-col,.right-col{grid-template-columns:1fr}.city-grid{grid-template-columns:1fr}.welcome{padding:14px}.welcome h2{font-size:21px}.server{font-size:10px}}
@@ -51,7 +53,7 @@
     <nav class="nav" aria-label="Main navigation">
       <button class="active" data-page="city">City</button><button data-page="districts">Districts</button><button data-page="work">Work &amp; Study</button><button data-page="missions">Missions</button><button data-page="market">Exchange</button><button data-page="rankings">Rankings</button><button data-page="community">Community</button>
     </nav>
-    <div class="notice"><strong>FOUNDATION BUILD:</strong> This is an early interface prototype. Player accounts, shared multiplayer data, and server-side game systems are not connected yet. Your demo progress stays in this browser only.</div>
+    <div class="notice" id="buildNotice"><strong>EARLY ACCESS:</strong> Account registration and sign-in connect to the Ironhaven API when the backend is running. Shared multiplayer features are still in development.</div>
     <div class="layout">
       <aside class="left-col">
         <section class="panel"><div class="panel-head">Player dossier</div><div class="panel-body">
@@ -94,6 +96,20 @@
     <footer><span>IRONHAVEN · FOUNDATION 0.1.0</span><span>Original fictional world · Multiplayer services not yet connected</span><span>Built for the web</span></footer>
   </div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="auth-backdrop" id="authBackdrop" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+    <section class="auth-card">
+      <div class="eyebrow">IRONHAVEN ACCOUNT</div><h2 id="authTitle">Enter the city</h2><p>Create a resident account or sign in to load your server profile.</p>
+      <div class="auth-tabs"><button class="btn primary" id="loginTab" type="button">SIGN IN</button><button class="btn subtle" id="registerTab" type="button">REGISTER</button></div>
+      <form id="authForm">
+        <label class="auth-field" id="usernameField" hidden>Display name<input id="authUsername" name="username" minlength="3" maxlength="20" autocomplete="username" pattern="[A-Za-z0-9_]+" placeholder="3–20 letters, numbers or underscores"></label>
+        <label class="auth-field">Email address<input id="authEmail" name="email" type="email" required maxlength="254" autocomplete="email" placeholder="you@example.com"></label>
+        <label class="auth-field">Password<input id="authPassword" name="password" type="password" required minlength="10" maxlength="128" autocomplete="current-password" placeholder="At least 10 characters"></label>
+        <div class="auth-error" id="authError" role="alert"></div>
+        <div class="auth-actions"><button class="btn subtle" type="button" id="closeAuth">CANCEL</button><button class="btn primary" type="submit" id="authSubmit">SIGN IN</button></div>
+      </form>
+      <div class="auth-status">Your access token stays in memory for this page session and is not saved to local storage.</div>
+    </section>
+  </div>
   <script>
     const state={name:"City Visitor",level:1,credits:250,xp:0,energy:60,focus:75,rep:0,days:1,entered:false};
     const locations=[["Old Quarter","⌂","Meet local residents and explore the city's history."],["Foundry Row","▤","Find honest work and develop practical skills."],["Market Square","◇","Browse local vendors and the future player exchange."],["City Library","▥","Study useful topics and improve your focus."],["Riverside Park","✧","Take a quiet break and restore your energy."],["Town Hall","⌖","Read city notices and join community projects."],["Harbour Walk","≈","Discover public events along the waterfront."]];
@@ -109,9 +125,20 @@
     function renderJobs(){$("jobsList").innerHTML=jobs.map((j,i)=>'<div class="job"><div><h3>'+j[0]+'</h3><p>'+j[1]+'</p></div><div class="reward">'+j[2]+'<button class="btn" data-job="'+i+'">Take task</button></div></div>').join("");$("jobsList").querySelectorAll("[data-job]").forEach(b=>b.addEventListener("click",()=>{const j=jobs[Number(b.dataset.job)];if(state.energy<10){toast("You need more energy. Visit Riverside Park for a break.");return}state.energy-=10;state.credits+=j[3];state.xp+=j[4];state.rep=Math.min(100,state.rep+3);if(state.xp>=100){state.level++;state.xp-=100;toast("Task complete — you reached level "+state.level+"!")}else toast("Task complete: "+j[0]);render()}))}
     function renderMissions(){$("missionsList").innerHTML=missions.map((m,i)=>'<div class="job"><div><h3>'+m[0]+'</h3><p>'+m[1]+'</p></div><div class="reward">'+m[2]+'<button class="btn" data-mission="'+i+'">Complete demo</button></div></div>').join("");$("missionsList").querySelectorAll("[data-mission]").forEach(b=>b.addEventListener("click",()=>{const m=missions[Number(b.dataset.mission)];state.credits+=m[3];state.rep=Math.min(100,state.rep+m[4]);state.xp+=5;toast("Mission recorded in this local demo.");b.disabled=true;b.textContent="Completed";render()}))}
     function renderRankings(){$("rankingList").innerHTML=[["1","Northstar","980"],["2","MapleFox","845"],["3","QuietRiver","790"],["4",state.name,String(state.rep)],["5","CopperLane","620"]].map(r=>'<div class="leader-row"><span class="place">'+r[0]+'</span><strong>'+r[1]+'</strong><span>'+r[2]+'</span></div>').join("")}
-    $("enterBtn").addEventListener("click",()=>{if(state.entered){toast("Welcome back, "+state.name+".");return}const name=prompt("Choose a display name for this local demo (no password needed):");if(!name)return;const clean=name.trim().slice(0,18);if(clean.length<2){toast("Please use at least 2 characters.");return}state.name=clean;state.entered=true;render();renderRankings();toast("Welcome to Ironhaven, "+clean+"! This is a local demo profile.")});
+    let accessToken=null,authMode="login";
+    function openAuth(mode){$("authBackdrop").classList.add("open");setAuthMode(mode||"login");$("authEmail").focus()}
+    function closeAuth(){$("authBackdrop").classList.remove("open")}
+    function setAuthMode(mode){authMode=mode;const registering=mode==="register";$("usernameField").hidden=!registering;$("authUsername").required=registering;$("authPassword").autocomplete=registering?"new-password":"current-password";$("authTitle").textContent=registering?"Create your resident account":"Enter the city";$("authSubmit").textContent=registering?"CREATE ACCOUNT":"SIGN IN";$("loginTab").classList.toggle("primary",!registering);$("loginTab").classList.toggle("subtle",registering);$("registerTab").classList.toggle("primary",registering);$("registerTab").classList.toggle("subtle",!registering);$("authError").textContent=""}
+    async function api(path,options){const opts=options||{};const headers={"Content-Type":"application/json",...(opts.headers||{})};if(accessToken)headers.Authorization="Bearer "+accessToken;const response=await fetch("/api"+path,{...opts,headers});let data={};try{data=await response.json()}catch{}if(!response.ok)throw new Error(data.detail||"The service could not complete that request.");return data}
+    function applyPlayer(player){state.name=player.username;state.level=player.level;state.credits=player.credits;state.xp=player.experience;state.energy=player.energy;state.focus=player.focus;state.rep=player.reputation;state.entered=true;$("playerRank").textContent="Registered resident";$("rankBadge").textContent="RESIDENT";$("enterBtn").textContent="ACCOUNT";$("buildNotice").innerHTML="<strong>ACCOUNT CONNECTED:</strong> Your resident profile is loaded from the Ironhaven API. Game activities are not yet saved to the server.";render()}
+    $("enterBtn").addEventListener("click",()=>{if(accessToken){toast("Signed in as "+state.name+".");return}openAuth("login")});
+    $("loginTab").addEventListener("click",()=>setAuthMode("login"));$("registerTab").addEventListener("click",()=>setAuthMode("register"));$("closeAuth").addEventListener("click",closeAuth);
+    $("authBackdrop").addEventListener("click",e=>{if(e.target===$("authBackdrop"))closeAuth()});
+    $("authForm").addEventListener("submit",async e=>{e.preventDefault();const submit=$("authSubmit");submit.disabled=true;$("authError").textContent="Connecting to Ironhaven…";try{const payload={email:$("authEmail").value.trim(),password:$("authPassword").value};if(authMode==="register")payload.username=$("authUsername").value.trim();const data=await api(authMode==="register"?"/auth/register":"/auth/login",{method:"POST",body:JSON.stringify(payload)});accessToken=data.access_token;applyPlayer(data.player);closeAuth();toast("Welcome to Ironhaven, "+state.name+".")}catch(error){$("authError").textContent=error.message}finally{submit.disabled=false}});
+    async function checkApi(){try{await api("/health",{method:"GET"});$("buildNotice").innerHTML="<strong>API ONLINE:</strong> Account registration and sign-in are available. Shared game progression is still in development."}catch{$("buildNotice").innerHTML="<strong>API OFFLINE:</strong> The city interface is available, but sign-in requires the Ironhaven backend to be running at this address."}}
+
     $("helpBtn").addEventListener("click",()=>toast("Explore districts, complete positive community tasks, and build your reputation. This build is a front-end demo."));
-    render();renderDistricts();renderJobs();renderMissions();renderRankings();
+    render();renderDistricts();renderJobs();renderMissions();renderRankings();checkApi();
   </script>
 </body>
 </html>
