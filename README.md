@@ -15,11 +15,14 @@ An original, Torn-inspired multiplayer city RPG foundation. Ironhaven uses a gri
 - [x] Connect browser registration and sign-in to the API
 - [x] Load authenticated server-side player profiles in the browser
 - [x] Serve the browser client and API from one origin
+- [x] Save work and mission rewards to player accounts
+- [x] Enforce server-side daily work limits and one-time mission rewards
+- [x] Load completed activity status for signed-in players
 - [ ] Add database migrations, rate limiting, and account recovery
-- [ ] Add shared multiplayer features (presence, messaging, rankings, trading)
+- [ ] Add shared multiplayer features (presence, messaging, live rankings, trading)
 - [ ] Production deployment and security review
 
-**Important:** The browser can now register and sign in against the API when served by the FastAPI app. Player account fields are stored in the configured database, but work tasks, missions, rankings, marketplace activity, and other game progress are still demo-only and are not saved server-side. This is a development foundation, not a production-ready public service. Do not use a reused or sensitive password.
+**Important:** The browser can now register and sign in against the API when served by the FastAPI app. Player account fields are stored in the configured database, but rankings, marketplace activity, district exploration, and real-time multiplayer are still not implemented. Work tasks can be completed once per UTC day per task; each community mission can be claimed once per account. This is a development foundation, not a production-ready public service. Do not use a reused or sensitive password.
 
 ## API
 
@@ -29,6 +32,9 @@ An original, Torn-inspired multiplayer city RPG foundation. Ironhaven uses a gri
 | POST | `/api/auth/register` | Create a player account |
 | POST | `/api/auth/login` | Authenticate a player |
 | GET | `/api/players/me` | Get the authenticated player's profile |
+| GET | `/api/game/status` | Get completed missions and today's work |
+| POST | `/api/game/work/{task_id}` | Complete a daily work task and save rewards |
+| POST | `/api/game/missions/{mission_id}` | Complete a one-time community mission and save rewards |
 
 Interactive API documentation is available at `/docs` while the API is running.
 
