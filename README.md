@@ -1,12 +1,10 @@
 # Security Architecture
 
-A practical security architecture knowledge base and reference blueprint. The interface takes visual inspiration from compact, panel-based browser dashboards, while using original branding, layout details, and content.
+A practical security architecture knowledge base and reference blueprint with a compact, dark, tab-driven dashboard.
 
-## Purpose
+## Tab-based site structure
 
-This project is an educational workspace for understanding how to design, document, and govern secure systems. It is organised around architecture layers, security domains, trust boundaries, threat modelling, controls, and implementation planning.
-
-## Current site sections
+All site information is contained inside one of the primary navigation tabs. Only the selected tab's content is displayed; persistent sidebars and out-of-tab information panels have been removed.
 
 - **Overview** — architecture summary, core principles, and priority design considerations.
 - **Reference blueprint** — identity and endpoints, edge, network, applications, data, and security operations.
@@ -15,6 +13,8 @@ This project is an educational workspace for understanding how to design, docume
 - **Controls library** — identity, network, application, data, detection, and governance safeguards.
 - **Roadmap** — a staged path from discovery through continuous assurance.
 - **Resources** — links to NIST, CIS, OWASP, MITRE ATT&CK, and Cloud Security Alliance.
+
+The interface uses original Security Architecture branding and content, with compact panel styling inspired by classic browser dashboards.
 
 ## Run locally
 
@@ -63,4 +63,4 @@ docker-compose.yml
 
 ## Status
 
-The frontend has an initial architecture dashboard and interactive section navigation/search. The existing backend has not yet been converted into a content-management or multi-user architecture documentation service. Production deployment, accessibility review, browser testing, backend redesign, and security review remain future work.
+The frontend now uses a single-content-area, tab-only navigation model with accessible tab roles, responsive layouts, and searchable security domains. The existing backend has not yet been converted into a content-management or multi-user architecture documentation service. Production deployment, accessibility review, browser testing, backend redesign, and security review remain future work.
