@@ -14,6 +14,8 @@ An original, Torn-inspired multiplayer city RPG foundation. Ironhaven uses a gri
 - [x] Health endpoint
 - [x] Connect browser registration and sign-in to the API
 - [x] Load authenticated server-side player profiles in the browser
+- [x] Persist daily work and one-time mission rewards
+- [x] Restore completed activity states after sign-in
 - [x] Serve the browser client and API from one origin
 - [x] Save work and mission rewards to player accounts
 - [x] Enforce server-side daily work limits and one-time mission rewards
@@ -60,6 +62,10 @@ Use Python 3.12+, install dependencies with `pip install -r requirements.txt`, s
 ```bash
 uvicorn app.main:app --reload
 ```
+
+## Automated checks
+
+GitHub Actions compiles the Python backend and checks the inline browser JavaScript syntax on pushes and pull requests to `main`.
 
 ## Security and production notes
 
