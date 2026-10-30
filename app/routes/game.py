@@ -70,3 +70,12 @@ def complete_mission(mission_id: str, player: Player = Depends(get_current_playe
         raise HTTPException(status_code=409, detail="This mission was already completed.")
     db.refresh(player)
     return GameActionResponse(message=f"Mission complete: {mission['title']}. Rewards saved to your account.", player=PlayerResponse.model_validate(player))
+
+@router.get("/status")
+def get_game_status(player: Player = Depends(get_current_player), db: Session = Depends(get_db)):
+    today = datetime.now(timezone.utc).date().isoformat()
+    activities = db.scalars(select(PlayerActivity).where(PlayerActivity.player_id == player.id)).all()
+    completed_missions = [item.activity_key for item in activities if item.activity_type == "mission"]
+    completed_work = [item.activity_key.split(":", 1)[0] for item in activities
+                      if item.activity_type == "work" and item.activity_key.endswith(":" + today)]
+    return {"completed_missions": completed_missions, "completed_work_today": completed_work}
