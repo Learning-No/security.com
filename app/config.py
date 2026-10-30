@@ -4,10 +4,10 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    app_name: str = "Ironhaven API"
+    app_name: str = "Security Architecture API"
     environment: str = "development"
     secret_key: str = Field(min_length=32)
-    database_url: str = "sqlite:///./ironhaven.db"
+    database_url: str = "sqlite:///./security_architecture.db"
     access_token_minutes: int = Field(default=30, ge=5, le=1440)
     cors_origins: str = "http://localhost:3000,http://localhost:5173,http://127.0.0.1:5500"
 
