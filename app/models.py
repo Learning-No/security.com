@@ -24,3 +24,18 @@ class Player(Base):
     focus: Mapped[int] = mapped_column(Integer, default=75, nullable=False)
     reputation: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, nullable=False)
+
+
+class PlayerActivity(Base):
+    __tablename__ = "player_activities"
+    __table_args__ = (
+        __import__("sqlalchemy").UniqueConstraint(
+            "player_id", "activity_type", "activity_key", name="uq_player_activity_key"
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    player_id: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
+    activity_type: Mapped[str] = mapped_column(String(20), nullable=False)
+    activity_key: Mapped[str] = mapped_column(String(80), nullable=False)
+    completed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, nullable=False)
