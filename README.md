@@ -12,12 +12,14 @@ An original, Torn-inspired multiplayer city RPG foundation. Ironhaven uses a gri
 - [x] Signed, expiring access tokens
 - [x] Authenticated player profile endpoint
 - [x] Health endpoint
-- [ ] Connect the browser UI to the API
+- [x] Connect browser registration and sign-in to the API
+- [x] Load authenticated server-side player profiles in the browser
+- [x] Serve the browser client and API from one origin
 - [ ] Add database migrations, rate limiting, and account recovery
 - [ ] Add shared multiplayer features (presence, messaging, rankings, trading)
 - [ ] Production deployment and security review
 
-**Important:** The current browser UI still runs as a local demo. The API is a starter service and does not yet provide live multiplayer gameplay. Do not use real credentials until the production security work is complete.
+**Important:** The browser can now register and sign in against the API when served by the FastAPI app. Player account fields are stored in the configured database, but work tasks, missions, rankings, marketplace activity, and other game progress are still demo-only and are not saved server-side. This is a development foundation, not a production-ready public service. Do not use a reused or sensitive password.
 
 ## API
 
@@ -38,9 +40,12 @@ Interactive API documentation is available at `/docs` while the API is running.
 4. Put that value in `SECRET_KEY` in `.env`.
 5. Set `POSTGRES_PASSWORD` in `.env` to a strong, unique password using URL-safe characters.
 6. Start the services: `docker compose up --build`.
-7. Open `http://127.0.0.1:8000/docs` and check `/api/health`.
+7. Open `http://127.0.0.1:8000/` for the Ironhaven browser client.
+8. Open `http://127.0.0.1:8000/docs` for API documentation and check `/api/health`.
 
 The API is bound to localhost by default; PostgreSQL is not published to the host network. Keep `.env` private and never commit it.
+
+The FastAPI service serves `index.html` at `/` and the API under `/api` on the same origin. This avoids a separate browser API URL and CORS setup for the local Docker build.
 
 ### Run the API without Docker
 
