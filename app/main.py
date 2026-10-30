@@ -2,6 +2,8 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from pathlib import Path
 
 from app.config import settings
 from app.database import Base, engine
@@ -38,3 +40,10 @@ app.include_router(players.router)
 @app.get("/api/health", tags=["system"])
 def health():
     return {"status": "ok", "service": "ironhaven-api", "version": "0.1.0"}
+
+
+@app.get("/", include_in_schema=False)
+def homepage():
+    """Serve the browser client from the same origin as the API."""
+    index_file = Path(__file__).resolve().parent.parent / "index.html"
+    return FileResponse(index_file)
