@@ -41,3 +41,8 @@ class TokenResponse(BaseModel):
     token_type: str = "bearer"
     expires_in: int
     player: PlayerResponse
+
+
+class GameActionResponse(BaseModel):
+    message: str
+    player: PlayerResponse
