@@ -1,79 +1,50 @@
-# Ironhaven
+# Security Architecture
 
-An original, Torn-inspired multiplayer city RPG foundation. Ironhaven uses a gritty, compact city-dashboard aesthetic while keeping its own name, fictional world, content, and visual identity.
+A practical security architecture knowledge base and reference blueprint. The interface takes visual inspiration from compact, panel-based browser dashboards, while using original branding, layout details, and content.
 
-## Current status
+## Purpose
 
-- [x] Dark city-game frontend foundation
-- [x] FastAPI backend foundation
-- [x] PostgreSQL Docker Compose configuration
-- [x] Player registration and login API
-- [x] Argon2 password hashing
-- [x] Signed, expiring access tokens
-- [x] Authenticated player profile endpoint
-- [x] Health endpoint
-- [x] Connect browser registration and sign-in to the API
-- [x] Load authenticated server-side player profiles in the browser
-- [x] Persist daily work and one-time mission rewards
-- [x] Restore completed activity states after sign-in
-- [x] Serve the browser client and API from one origin
-- [x] Save work and mission rewards to player accounts
-- [x] Enforce server-side daily work limits and one-time mission rewards
-- [x] Load completed activity status for signed-in players
-- [ ] Add database migrations, rate limiting, and account recovery
-- [ ] Add shared multiplayer features (presence, messaging, live rankings, trading)
-- [ ] Production deployment and security review
+This project is an educational workspace for understanding how to design, document, and govern secure systems. It is organised around architecture layers, security domains, trust boundaries, threat modelling, controls, and implementation planning.
 
-**Important:** The browser can now register and sign in against the API when served by the FastAPI app. Player account fields are stored in the configured database, but rankings, marketplace activity, district exploration, and real-time multiplayer are still not implemented. Work tasks can be completed once per UTC day per task; each community mission can be claimed once per account. This is a development foundation, not a production-ready public service. Do not use a reused or sensitive password.
+## Current site sections
 
-## API
+- **Overview** — architecture summary, core principles, and priority design considerations.
+- **Reference blueprint** — identity and endpoints, edge, network, applications, data, and security operations.
+- **Security domains** — searchable capability directory across protection, detection, and governance.
+- **Threat model** — STRIDE prompts, risk examples, and a threat-modelling workflow.
+- **Controls library** — identity, network, application, data, detection, and governance safeguards.
+- **Roadmap** — a staged path from discovery through continuous assurance.
+- **Resources** — links to NIST, CIS, OWASP, MITRE ATT&CK, and Cloud Security Alliance.
 
-| Method | Endpoint | Purpose |
-|---|---|---|
-| GET | `/api/health` | Service health |
-| POST | `/api/auth/register` | Create a player account |
-| POST | `/api/auth/login` | Authenticate a player |
-| GET | `/api/players/me` | Get the authenticated player's profile |
-| GET | `/api/game/status` | Get completed missions and today's work |
-| POST | `/api/game/work/{task_id}` | Complete a daily work task and save rewards |
-| POST | `/api/game/missions/{mission_id}` | Complete a one-time community mission and save rewards |
+## Run locally
 
-Interactive API documentation is available at `/docs` while the API is running.
-
-## Local development with Docker
-
-1. Install Docker Desktop / Docker Engine with the Compose plugin.
-2. Copy `.env.example` to `.env`.
-3. Generate a random secret: `python -c "import secrets; print(secrets.token_urlsafe(48))"`.
-4. Put that value in `SECRET_KEY` in `.env`.
-5. Set `POSTGRES_PASSWORD` in `.env` to a strong, unique password using URL-safe characters.
-6. Start the services: `docker compose up --build`.
-7. Open `http://127.0.0.1:8000/` for the Ironhaven browser client.
-8. Open `http://127.0.0.1:8000/docs` for API documentation and check `/api/health`.
-
-The API is bound to localhost by default; PostgreSQL is not published to the host network. Keep `.env` private and never commit it.
-
-The FastAPI service serves `index.html` at `/` and the API under `/api` on the same origin. This avoids a separate browser API URL and CORS setup for the local Docker build.
-
-### Run the API without Docker
-
-Use Python 3.12+, install dependencies with `pip install -r requirements.txt`, set `SECRET_KEY` to a random value of at least 32 characters, and optionally set `DATABASE_URL`. The default local database is SQLite for development convenience. Then run:
+The site is a static HTML/CSS/JavaScript frontend and can be opened directly in a browser. For the existing FastAPI development service, install the packages in `requirements.txt`, set a random `SECRET_KEY` of at least 32 characters, and run:
 
 ```bash
 uvicorn app.main:app --reload
 ```
 
-## Automated checks
+Then open `http://127.0.0.1:8000/`.
 
-GitHub Actions compiles the Python backend and checks the inline browser JavaScript syntax on pushes and pull requests to `main`.
+The repository retains an early FastAPI/PostgreSQL account and activity prototype from its previous Ironhaven experiment. The current architecture knowledge-base frontend does not depend on those game endpoints. Treat that backend as a separate development component until it is deliberately redesigned around architecture documentation, user workspaces, and access control.
 
-## Security and production notes
+## Architecture guidance
 
-This is a development foundation, not a production-ready public service. Before opening registration to the internet, add request rate limiting and abuse controls, email verification and account recovery, Alembic migrations, structured audit logging, monitoring, backups, HTTPS behind a reverse proxy, secure token lifecycle/refresh or server-side sessions, and a security review. Configure exact trusted CORS origins for the deployed frontend. Never expose the PostgreSQL port publicly.
+The diagrams and control examples are illustrative starting points, not a certified design or a guarantee of compliance. Tailor them to the system context, threat model, data classification, business requirements, and applicable laws and standards.
+
+## Security references
+
+- [NIST Cybersecurity Framework 2.0](https://www.nist.gov/cyberframework)
+- [NIST SP 800-207 — Zero Trust Architecture](https://csrc.nist.gov/pubs/sp/800/207/final)
+- [CIS Critical Security Controls](https://www.cisecurity.org/controls)
+- [OWASP Top 10](https://owasp.org/www-project-top-ten/)
+- [MITRE ATT&CK](https://attack.mitre.org/)
+- [Cloud Security Alliance](https://cloudsecurityalliance.org/)
 
 ## Project structure
 
 ```
+index.html
 app/
   main.py
   config.py
@@ -83,11 +54,13 @@ app/
   security.py
   dependencies.py
   routes/
-    auth.py
-    players.py
-index.html
 requirements.txt
 Dockerfile
 docker-compose.yml
 .env.example
+.github/workflows/backend-checks.yml
 ```
+
+## Status
+
+The frontend has an initial architecture dashboard and interactive section navigation/search. The existing backend has not yet been converted into a content-management or multi-user architecture documentation service. Production deployment, accessibility review, browser testing, backend redesign, and security review remain future work.
