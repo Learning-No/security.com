@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import DateTime, Integer, String
+from sqlalchemy import DateTime, Integer, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
@@ -29,9 +29,7 @@ class Player(Base):
 class PlayerActivity(Base):
     __tablename__ = "player_activities"
     __table_args__ = (
-        __import__("sqlalchemy").UniqueConstraint(
-            "player_id", "activity_type", "activity_key", name="uq_player_activity_key"
-        ),
+        UniqueConstraint("player_id", "activity_type", "activity_key", name="uq_player_activity_key"),
     )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
