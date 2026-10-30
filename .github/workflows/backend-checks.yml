@@ -16,3 +16,10 @@ jobs:
           python-version: "3.12"
       - name: Compile backend modules
         run: python -m compileall -q app
+      - name: Extract frontend script
+        run: python tests/extract_frontend.py
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Check frontend JavaScript syntax
+        run: node --check /tmp/ironhaven-frontend.js
