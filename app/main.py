@@ -1,9 +1,9 @@
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
-from pathlib import Path
 
 from app.config import settings
 from app.database import Base, engine
@@ -20,8 +20,8 @@ async def lifespan(_: FastAPI):
 
 app = FastAPI(
     title=settings.app_name,
-    version="0.1.0",
-    description="Ironhaven multiplayer RPG API foundation.",
+    version="1.0.0",
+    description="Security architecture reference and learning API foundation.",
     lifespan=lifespan,
 )
 
@@ -40,11 +40,11 @@ app.include_router(game.router)
 
 @app.get("/api/health", tags=["system"])
 def health():
-    return {"status": "ok", "service": "ironhaven-api", "version": "0.1.0"}
+    return {"status": "ok", "service": "security-architecture-api", "version": "1.0.0"}
 
 
 @app.get("/", include_in_schema=False)
 def homepage():
-    """Serve the browser client from the same origin as the API."""
+    """Serve the security architecture browser client from the same origin as the API."""
     index_file = Path(__file__).resolve().parent.parent / "index.html"
     return FileResponse(index_file)
