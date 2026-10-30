@@ -8,7 +8,7 @@ from pathlib import Path
 from app.config import settings
 from app.database import Base, engine
 from app import models  # noqa: F401 - registers SQLAlchemy models
-from app.routes import auth, players
+from app.routes import auth, game, players
 
 
 @asynccontextmanager
@@ -35,6 +35,7 @@ app.add_middleware(
 
 app.include_router(auth.router)
 app.include_router(players.router)
+app.include_router(game.router)
 
 
 @app.get("/api/health", tags=["system"])
